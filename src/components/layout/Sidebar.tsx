@@ -141,6 +141,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle }) => {
       <div
         className={clsx(
           'fixed inset-y-0 left-0 z-30 flex flex-col bg-white border-r border-secondary-200 transition-all duration-300 ease-in-out',
+          'data-testid="sidebar"',
           isOpen ? 'w-64' : 'w-16',
           'lg:relative lg:translate-x-0',
           !isOpen && 'lg:w-16',

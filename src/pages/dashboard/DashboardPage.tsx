@@ -83,7 +83,7 @@ const DashboardPage: React.FC = () => {
   }) => (
     <Card>
       <CardContent className="p-6">
-        <div className="flex items-center justify-between">
+        <div className="flex items-center justify-between" data-testid="stat-card">
           <div>
             <p className="text-sm font-medium text-secondary-600">{title}</p>
             {loading ? (

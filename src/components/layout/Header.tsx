@@ -26,6 +26,7 @@ const Header: React.FC<HeaderProps> = ({ onMenuClick }) => {
         <div className="flex items-center space-x-4">
           <button
             onClick={onMenuClick}
+            data-testid="menu-button"
             className="p-2 rounded-lg hover:bg-secondary-100 transition-colors lg:hidden"
           >
             <Menu className="w-5 h-5 text-secondary-600" />
