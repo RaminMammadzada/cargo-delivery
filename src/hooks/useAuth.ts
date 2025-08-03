@@ -112,13 +112,45 @@ export const useAuth = () => {
         dispatch(loginSuccess({
           user,
           token,
-          permissions: [], // Will be refreshed on next API call
+          permissions: ['orders:create', 'orders:read', 'tracking:read'], // Default permissions
         }));
       } catch (error) {
         console.error('Failed to parse stored user data:', error);
         localStorage.removeItem('auth_token');
         localStorage.removeItem('user');
       }
+    } else {
+      // For demo purposes, set up a default user
+      const demoUser = {
+        id: 'demo-user-1',
+        email: 'customer@demo.com',
+        role: UserRole.CUSTOMER,
+        organizationId: 'demo-org-1',
+        profile: {
+          firstName: 'Demo',
+          lastName: 'Customer',
+          phone: '+994501234567',
+          language: 'en' as const,
+          timezone: 'Asia/Baku',
+          notifications: {
+            email: true,
+            sms: true,
+            push: true,
+            whatsapp: false,
+          },
+        },
+        emailVerified: true,
+        phoneVerified: false,
+        twoFactorEnabled: false,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      };
+      
+      dispatch(loginSuccess({
+        user: demoUser,
+        token: 'demo-token',
+        permissions: ['orders:create', 'orders:read', 'tracking:read'],
+      }));
     }
   };
 
