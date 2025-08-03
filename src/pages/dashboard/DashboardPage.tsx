@@ -1,34 +1,59 @@
 import React from 'react';
-import { 
-  Package, 
-  ShoppingCart, 
-  Truck, 
-  DollarSign, 
-  TrendingUp, 
-  Clock,
-  CheckCircle,
-  AlertCircle
-} from 'lucide-react';
+import { Package, ShoppingCart, Truck, DollarSign, TrendingUp, Clock, CheckCircle, AlertCircle } from 'lucide-react';
 import { Card, CardHeader, CardContent } from '../../components/ui/Card';
-import { useAuth } from '../../hooks/useAuth';
-import { useGetDashboardMetricsQuery, useGetOrdersQuery, useGetPackagesQuery } from '../../store/api/apiSlice';
-import { UserRole } from '../../types';
 import LoadingSpinner from '../../components/ui/LoadingSpinner';
 import StatusBadge from '../../components/ui/StatusBadge';
-import { format } from 'date-fns';
+import { useAuth } from '../../hooks/useAuth';
+import { UserRole } from '../../types';
 
 const DashboardPage: React.FC = () => {
   const { user, userRole } = useAuth();
   
-  const { data: metrics, isLoading: metricsLoading } = useGetDashboardMetricsQuery({});
-  const { data: recentOrders, isLoading: ordersLoading } = useGetOrdersQuery({ 
-    limit: 5,
-    page: 1 
-  });
-  const { data: recentPackages, isLoading: packagesLoading } = useGetPackagesQuery({ 
-    limit: 5,
-    page: 1 
-  });
+  // Demo data for now
+  const metrics = {
+    totalOrders: 24,
+    totalRevenue: 5420,
+    activePackages: 8,
+    deliverySuccessRate: 98,
+    customerSatisfaction: 4.7,
+    averageProcessingTime: 2.5
+  };
+
+  const recentOrders = {
+    data: [
+      {
+        id: '1',
+        orderNumber: 'CG001234',
+        status: 'delivered',
+        totalAmount: 150,
+        createdAt: new Date().toISOString()
+      },
+      {
+        id: '2', 
+        orderNumber: 'CG001235',
+        status: 'in_warehouse',
+        totalAmount: 89,
+        createdAt: new Date().toISOString()
+      }
+    ]
+  };
+
+  const recentPackages = {
+    data: [
+      {
+        id: '1',
+        trackingNumber: 'CG123456789',
+        status: 'in_transit_to_customer',
+        currentLocation: { city: 'Baku' }
+      },
+      {
+        id: '2',
+        trackingNumber: 'CG123456790', 
+        status: 'in_warehouse',
+        currentLocation: { city: 'Germany Warehouse' }
+      }
+    ]
+  };
 
   const isCustomer = userRole === UserRole.CUSTOMER;
   const isAdmin = userRole === UserRole.ORG_ADMIN || userRole === UserRole.SUPER_ADMIN;
@@ -83,14 +108,6 @@ const DashboardPage: React.FC = () => {
     </Card>
   );
 
-  if (metricsLoading && ordersLoading && packagesLoading) {
-    return (
-      <div className="flex items-center justify-center h-64">
-        <LoadingSpinner size="lg" text="Loading dashboard..." />
-      </div>
-    );
-  }
-
   return (
     <div className="space-y-6">
       {/* Welcome Header */}
@@ -111,32 +128,28 @@ const DashboardPage: React.FC = () => {
           <>
             <StatCard
               title="Active Orders"
-              value={metrics?.totalOrders || 0}
+              value={metrics.totalOrders}
               icon={ShoppingCart}
               change="+2 this week"
-              loading={metricsLoading}
             />
             <StatCard
               title="Packages in Transit"
-              value={metrics?.activePackages || 0}
+              value={metrics.activePackages}
               icon={Package}
               change="3 arriving soon"
-              loading={metricsLoading}
             />
             <StatCard
               title="Total Spent"
-              value={`$${metrics?.totalRevenue || 0}`}
+              value={`$${metrics.totalRevenue}`}
               icon={DollarSign}
               change="+12% this month"
-              loading={metricsLoading}
             />
             <StatCard
               title="Delivery Success"
-              value={`${metrics?.deliverySuccessRate || 0}%`}
+              value={`${metrics.deliverySuccessRate}%`}
               icon={CheckCircle}
               change="Excellent!"
               changeType="positive"
-              loading={metricsLoading}
             />
           </>
         )}
@@ -145,32 +158,28 @@ const DashboardPage: React.FC = () => {
           <>
             <StatCard
               title="Total Orders"
-              value={metrics?.totalOrders || 0}
+              value={metrics.totalOrders}
               icon={ShoppingCart}
               change="+15% vs last month"
-              loading={metricsLoading}
             />
             <StatCard
               title="Revenue"
-              value={`$${metrics?.totalRevenue || 0}`}
+              value={`$${metrics.totalRevenue}`}
               icon={DollarSign}
               change="+8.2% vs last month"
-              loading={metricsLoading}
             />
             <StatCard
               title="Active Packages"
-              value={metrics?.activePackages || 0}
+              value={metrics.activePackages}
               icon={Package}
               change="12 pending processing"
-              loading={metricsLoading}
             />
             <StatCard
               title="Customer Satisfaction"
-              value={`${metrics?.customerSatisfaction || 0}/5`}
+              value={`${metrics.customerSatisfaction}/5`}
               icon={TrendingUp}
               change="↑ 0.2 this month"
               changeType="positive"
-              loading={metricsLoading}
             />
           </>
         )}
@@ -179,11 +188,10 @@ const DashboardPage: React.FC = () => {
           <>
             <StatCard
               title="Packages to Process"
-              value={metrics?.activePackages || 0}
+              value={metrics.activePackages}
               icon={Package}
               change="5 urgent"
               changeType="negative"
-              loading={metricsLoading}
             />
             <StatCard
               title="Processed Today"
@@ -194,11 +202,10 @@ const DashboardPage: React.FC = () => {
             />
             <StatCard
               title="Average Processing Time"
-              value={`${metrics?.averageProcessingTime || 0}h`}
+              value={`${metrics.averageProcessingTime}h`}
               icon={Clock}
               change="↓ 15min vs last week"
               changeType="positive"
-              loading={metricsLoading}
             />
             <StatCard
               title="Issues Reported"
@@ -224,30 +231,24 @@ const DashboardPage: React.FC = () => {
             }
           />
           <CardContent>
-            {ordersLoading ? (
-              <LoadingSpinner size="sm" />
-            ) : recentOrders?.data.length === 0 ? (
-              <p className="text-secondary-500 text-center py-4">No orders yet</p>
-            ) : (
-              <div className="space-y-4">
-                {recentOrders?.data.slice(0, 5).map((order) => (
-                  <div key={order.id} className="flex items-center justify-between p-3 bg-secondary-50 rounded-lg">
-                    <div className="flex-1">
-                      <p className="font-medium text-secondary-900">#{order.orderNumber}</p>
-                      <p className="text-sm text-secondary-600">
-                        {format(new Date(order.createdAt), 'MMM dd, yyyy')}
-                      </p>
-                    </div>
-                    <div className="flex items-center space-x-3">
-                      <span className="font-medium text-secondary-900">
-                        ${order.totalAmount}
-                      </span>
-                      <StatusBadge status={order.status} type="order" />
-                    </div>
+            <div className="space-y-4">
+              {recentOrders.data.map((order) => (
+                <div key={order.id} className="flex items-center justify-between p-3 bg-secondary-50 rounded-lg">
+                  <div className="flex-1">
+                    <p className="font-medium text-secondary-900">#{order.orderNumber}</p>
+                    <p className="text-sm text-secondary-600">
+                      {new Date(order.createdAt).toLocaleDateString()}
+                    </p>
                   </div>
-                ))}
-              </div>
-            )}
+                  <div className="flex items-center space-x-3">
+                    <span className="font-medium text-secondary-900">
+                      ${order.totalAmount}
+                    </span>
+                    <StatusBadge status={order.status} type="order" />
+                  </div>
+                </div>
+              ))}
+            </div>
           </CardContent>
         </Card>
 
@@ -262,27 +263,21 @@ const DashboardPage: React.FC = () => {
             }
           />
           <CardContent>
-            {packagesLoading ? (
-              <LoadingSpinner size="sm" />
-            ) : recentPackages?.data.length === 0 ? (
-              <p className="text-secondary-500 text-center py-4">No packages yet</p>
-            ) : (
-              <div className="space-y-4">
-                {recentPackages?.data.slice(0, 5).map((pkg) => (
-                  <div key={pkg.id} className="flex items-center justify-between p-3 bg-secondary-50 rounded-lg">
-                    <div className="flex-1">
-                      <p className="font-medium text-secondary-900">{pkg.trackingNumber}</p>
-                      <p className="text-sm text-secondary-600">
-                        {pkg.currentLocation?.city || 'In transit'}
-                      </p>
-                    </div>
-                    <div className="flex items-center space-x-3">
-                      <StatusBadge status={pkg.status} type="package" />
-                    </div>
+            <div className="space-y-4">
+              {recentPackages.data.map((pkg) => (
+                <div key={pkg.id} className="flex items-center justify-between p-3 bg-secondary-50 rounded-lg">
+                  <div className="flex-1">
+                    <p className="font-medium text-secondary-900">{pkg.trackingNumber}</p>
+                    <p className="text-sm text-secondary-600">
+                      {pkg.currentLocation?.city || 'In transit'}
+                    </p>
                   </div>
-                ))}
-              </div>
-            )}
+                  <div className="flex items-center space-x-3">
+                    <StatusBadge status={pkg.status} type="package" />
+                  </div>
+                </div>
+              ))}
+            </div>
           </CardContent>
         </Card>
       </div>
