@@ -28,3 +28,5 @@ const FeatureWrapper: React.FC<FeatureWrapperProps> = ({
 };
 
 export default FeatureWrapper;
+
+export { FeatureWrapper }
